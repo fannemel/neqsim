@@ -223,6 +223,8 @@ public class HeatExchanger extends Heater implements HeatExchangerInterface {
    * <p>
    * runSpecifiedStream.
    * </p>
+   *
+   * @param id UUID of run
    */
   public void runSpecifiedStream(UUID id) {
     int nonOutStreamSpecifiedStreamNumber = 0;
@@ -268,10 +270,10 @@ public class HeatExchanger extends Heater implements HeatExchangerInterface {
       outStream[0].run(id);
       run(id);
     } else {
-      double cP0 = inStream[0].getThermoSystem().getCp();
-      double cP1 = inStream[1].getThermoSystem().getCp();
       int streamToCalculate = 0;
 
+      // double cP0 = inStream[0].getThermoSystem().getCp();
+      // double cP1 = inStream[1].getThermoSystem().getCp();
       // if (cP0 < cP1) {
       // streamToCalculate = 1;
       // streamToSet = 0;

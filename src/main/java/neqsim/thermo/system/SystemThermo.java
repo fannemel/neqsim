@@ -2225,7 +2225,7 @@ abstract class SystemThermo implements SystemInterface {
     return null;
   }
 
-  /** @{inheritdoc} */
+  /** {@inheritDoc} */
   @Override
   public boolean isPhase(int i) {
     if (i > phaseArray.length) {
@@ -4155,11 +4155,7 @@ abstract class SystemThermo implements SystemInterface {
     return standard;
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * Setter for property standard.
-   */
+  /** {@inheritDoc} */
   @Override
   public void setStandard(String standardName) {
     if (standardName.equals("ISO1992")) {
@@ -4171,11 +4167,7 @@ abstract class SystemThermo implements SystemInterface {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * Getter for property hasPlusFraction.
-   */
+  /** {@inheritDoc} */
   @Override
   public boolean hasPlusFraction() {
     for (int i = 0; i < numberOfComponents; i++) {
