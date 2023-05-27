@@ -58,11 +58,9 @@ public class PhaseGERG2004Eos extends PhaseEos {
 
   /** {@inheritDoc} */
   @Override
-  public void addcomponent(String componentName, double moles, double molesInPhase,
-      int compNumber) {
-    super.addcomponent(molesInPhase);
-    componentArray[compNumber] =
-        new ComponentGERG2004(componentName, moles, molesInPhase, compNumber);
+  public void addComponent(String name, double moles, double molesInPhase, int compNumber) {
+    super.addComponent(name, molesInPhase);
+    componentArray[compNumber] = new ComponentGERG2004(name, moles, molesInPhase, compNumber);
   }
 
   /**
@@ -82,14 +80,14 @@ public class PhaseGERG2004Eos extends PhaseEos {
 
   /** {@inheritDoc} */
   @Override
-  public void init(double totalNumberOfMoles, int numberOfComponents, int type, int phase,
+  public void init(double totalNumberOfMoles, int numberOfComponents, int type, PhaseType phase,
       double beta) {
-    IPHASE = phase == 0 ? -1 : -2;
+    IPHASE = phase.getValue() == 0 ? -1 : -2;
     super.init(totalNumberOfMoles, numberOfComponents, type, phase, beta);
     setxFracGERG();
 
     if (!okVolume) {
-      IPHASE = phase == 0 ? -2 : -1;
+      IPHASE = phase.getValue() == 0 ? -2 : -1;
       super.init(totalNumberOfMoles, numberOfComponents, type, phase, beta);
     }
     if (type >= 1) {

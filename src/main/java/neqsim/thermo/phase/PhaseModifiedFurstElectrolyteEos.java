@@ -92,7 +92,7 @@ public class PhaseModifiedFurstElectrolyteEos extends PhaseSrkEos {
 
   /** {@inheritDoc} */
   @Override
-  public void init(double totalNumberOfMoles, int numberOfComponents, int type, int phase,
+  public void init(double totalNumberOfMoles, int numberOfComponents, int type, PhaseType phase,
       double beta) {
     super.init(totalNumberOfMoles, numberOfComponents, type, phase, beta);
     if (type == 0) {
@@ -191,11 +191,10 @@ public class PhaseModifiedFurstElectrolyteEos extends PhaseSrkEos {
 
   /** {@inheritDoc} */
   @Override
-  public void addcomponent(String componentName, double moles, double molesInPhase,
-      int compNumber) {
-    super.addcomponent(molesInPhase);
-    componentArray[compNumber] = new neqsim.thermo.component.ComponentModifiedFurstElectrolyteEos(
-        componentName, moles, molesInPhase, compNumber);
+  public void addComponent(String name, double moles, double molesInPhase, int compNumber) {
+    super.addComponent(name, molesInPhase);
+    componentArray[compNumber] =
+        new ComponentModifiedFurstElectrolyteEos(name, moles, molesInPhase, compNumber);
   }
 
   /**
@@ -411,7 +410,7 @@ public class PhaseModifiedFurstElectrolyteEos extends PhaseSrkEos {
    * @return a double
    */
   public double calcGammaLRdV() {
-    if (phaseType == 1) {
+    if (pt.getValue() == 1) {
       return 0.0;
     }
     // return 0.0; // problem ved ren komponent
@@ -798,7 +797,7 @@ public class PhaseModifiedFurstElectrolyteEos extends PhaseSrkEos {
    */
   public double dFLRdV() {
     return (FLRV() + dFdAlphaLR() * alphaLRdV) * 1e-5; // + FLRGammaLR()*gammLRdV +
-                                                      // 0*FLRXLR()*XLRdGammaLR()*gammLRdV)*1e-5;
+                                                       // 0*FLRXLR()*XLRdGammaLR()*gammLRdV)*1e-5;
   }
 
   /**
@@ -1425,7 +1424,8 @@ public class PhaseModifiedFurstElectrolyteEos extends PhaseSrkEos {
    * @return a double
    */
   public double FBornTT() {
-    return 2.0 * (avagadroNumber * electronCharge * electronCharge
+    return 2.0
+        * (avagadroNumber * electronCharge * electronCharge
             / (4.0 * pi * vacumPermittivity * R * temperature * temperature * temperature))
         * (1.0 / getSolventDiElectricConstant() - 1.0) * bornX;
   }

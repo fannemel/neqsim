@@ -108,7 +108,7 @@ public class PhaseModifiedFurstElectrolyteEosMod2004 extends PhaseSrkEos {
 
   /** {@inheritDoc} */
   @Override
-  public void init(double totalNumberOfMoles, int numberOfComponents, int type, int phase,
+  public void init(double totalNumberOfMoles, int numberOfComponents, int type, PhaseType phase,
       double beta) {
     super.init(totalNumberOfMoles, numberOfComponents, type, phase, beta);
     if (type == 0) {
@@ -191,12 +191,11 @@ public class PhaseModifiedFurstElectrolyteEosMod2004 extends PhaseSrkEos {
 
   /** {@inheritDoc} */
   @Override
-  public void addcomponent(String componentName, double moles, double molesInPhase,
-      int compNumber) {
-    super.addcomponent(molesInPhase);
+  public void addComponent(String name, double moles, double molesInPhase, int compNumber) {
+    super.addComponent(name, molesInPhase);
     componentArray[compNumber] =
-        new neqsim.thermo.component.ComponentModifiedFurstElectrolyteEosMod2004(componentName,
-            moles, molesInPhase, compNumber);
+        new neqsim.thermo.component.ComponentModifiedFurstElectrolyteEosMod2004(name, moles,
+            molesInPhase, compNumber);
   }
 
   /**
@@ -412,7 +411,7 @@ public class PhaseModifiedFurstElectrolyteEosMod2004 extends PhaseSrkEos {
    * @return a double
    */
   public double calcGammaLRdV() {
-    if (phaseType == 1) {
+    if (pt.getValue() == 1) {
       return 0.0;
     }
     // return 0.0; // problem ved ren komponent
@@ -485,9 +484,14 @@ public class PhaseModifiedFurstElectrolyteEosMod2004 extends PhaseSrkEos {
   // if(componentArray[i].getIonicCharge()!=0){
   // ions++;
   // f += -
-  // getAlphaLR2()*componentArray[i].getNumberOfMolesInPhase()/(molarVolume*numberOfMolesInPhase*1e-5)*Math.pow(componentArray[i].getIonicCharge(),2.0)/Math.pow((1.0+gamma*componentArray[i].getLennardJonesMolecularDiameter()*1e-10),3.0);
+  // getAlphaLR2()*componentArray[i].getNumberOfMolesInPhase() /
+  // (molarVolume*numberOfMolesInPhase*1e-5) * Math.pow(componentArray[i].getIonicCharge(),2.0) /
+  // Math.pow((1.0+gamma*componentArray[i].getLennardJonesMolecularDiameter()*1e-10),3.0);
   // df +=
-  // getAlphaLR2()*componentArray[i].getNumberOfMolesInPhase()/(molarVolume*numberOfMolesInPhase*1e-5)*Math.pow(componentArray[i].getIonicCharge(),2.0)*(componentArray[i].getLennardJonesMolecularDiameter()*1e-10)/Math.pow(1.0+gamma*componentArray[i].getLennardJonesMolecularDiameter()*1e-10,4.0);
+  // getAlphaLR2()*componentArray[i].getNumberOfMolesInPhase() /
+  // (molarVolume*numberOfMolesInPhase*1e-5)*Math.pow(componentArray[i].getIonicCharge(),2.0) *
+  // (componentArray[i].getLennardJonesMolecularDiameter()*1e-10) /
+  // Math.pow(1.0+gamma*componentArray[i].getLennardJonesMolecularDiameter()*1e-10,4.0);
   // }
   // }
   // gamma = ions>0 ? gammaold - 0.8*f/df : 0;
@@ -796,8 +800,8 @@ public class PhaseModifiedFurstElectrolyteEosMod2004 extends PhaseSrkEos {
    * @return a double
    */
   public double dFLRdV() {
-    return (FLRV() + dFdAlphaLR() * alphaLRdV) * 1e-5; // + FLRGammaLR()*gammLRdV +
-                                                      // 0*FLRXLR()*XLRdGammaLR()*gammLRdV)*1e-5;
+    return (FLRV() + dFdAlphaLR() * alphaLRdV) * 1e-5;
+    // + FLRGammaLR()*gammLRdV + 0*FLRXLR()*XLRdGammaLR()*gammLRdV)*1e-5;
   }
 
   /**

@@ -57,7 +57,7 @@ public class PhasePrCPA extends PhasePrEos implements PhaseCPAInterface {
 
   /** {@inheritDoc} */
   @Override
-  public void init(double totalNumberOfMoles, int numberOfComponents, int type, int phase,
+  public void init(double totalNumberOfMoles, int numberOfComponents, int type, PhaseType phase,
       double beta) {
     boolean Xsolved = true;
     int totiter = 0;
@@ -96,11 +96,9 @@ public class PhasePrCPA extends PhasePrEos implements PhaseCPAInterface {
 
   /** {@inheritDoc} */
   @Override
-  public void addcomponent(String componentName, double moles, double molesInPhase,
-      int compNumber) {
-    super.addcomponent(componentName, moles, molesInPhase, compNumber);
-    componentArray[compNumber] =
-        new ComponentSrkCPA(componentName, moles, molesInPhase, compNumber);
+  public void addComponent(String name, double moles, double molesInPhase, int compNumber) {
+    super.addComponent(name, moles, molesInPhase, compNumber);
+    componentArray[compNumber] = new ComponentSrkCPA(name, moles, molesInPhase, compNumber);
   }
 
   /** {@inheritDoc} */
@@ -406,9 +404,9 @@ public class PhasePrCPA extends PhasePrEos implements PhaseCPAInterface {
     double err = .0;
     int iter = 0;
     try {
-      molarVolume(pressure, temperature, getA(), getB(), phaseType);
+      molarVolume(pressure, temperature, getA(), getB(), pt.getValue());
     } catch (Exception ex) {
-      logger.error("error", ex);
+      logger.error(ex.getMessage(), ex);
     }
     do {
       iter++;

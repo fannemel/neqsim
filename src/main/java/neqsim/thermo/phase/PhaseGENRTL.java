@@ -43,7 +43,7 @@ public class PhaseGENRTL extends PhaseGE {
    * @param phase a {@link neqsim.thermo.phase.PhaseInterface} object
    * @param alpha an array of {@link double} objects
    * @param Dij an array of {@link double} objects
-   * @param mixRule an array of {@link java.lang.String} objects
+   * @param mixRule an array of {@link String} objects
    * @param intparam an array of {@link double} objects
    */
   public PhaseGENRTL(PhaseInterface phase, double[][] alpha, double[][] Dij, String[][] mixRule,
@@ -66,11 +66,9 @@ public class PhaseGENRTL extends PhaseGE {
 
   /** {@inheritDoc} */
   @Override
-  public void addcomponent(String componentName, double moles, double molesInPhase,
-      int compNumber) {
-    super.addcomponent(molesInPhase);
-    componentArray[compNumber] =
-        new ComponentGeNRTL(componentName, moles, molesInPhase, compNumber);
+  public void addComponent(String name, double moles, double molesInPhase, int compNumber) {
+    super.addComponent(name, molesInPhase);
+    componentArray[compNumber] = new ComponentGeNRTL(name, moles, molesInPhase, compNumber);
   }
 
   /** {@inheritDoc} */
@@ -101,7 +99,15 @@ public class PhaseGENRTL extends PhaseGE {
 
   /** {@inheritDoc} */
   @Override
-  public double getExessGibbsEnergy(PhaseInterface phase, int numberOfComponents,
+  public double getExcessGibbsEnergy() {
+    // double GE = getExcessGibbsEnergy(this, numberOfComponents, temperature,
+    // pressure, phaseType);
+    return GE;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public double getExcessGibbsEnergy(PhaseInterface phase, int numberOfComponents,
       double temperature, double pressure, int phasetype) {
     GE = 0;
     for (int i = 0; i < numberOfComponents; i++) {
@@ -117,13 +123,5 @@ public class PhaseGENRTL extends PhaseGE {
   @Override
   public double getGibbsEnergy() {
     return R * temperature * numberOfMolesInPhase * (GE + Math.log(pressure));
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public double getExessGibbsEnergy() {
-    // double GE = getExessGibbsEnergy(this, numberOfComponents, temperature,
-    // pressure, phaseType);
-    return GE;
   }
 }

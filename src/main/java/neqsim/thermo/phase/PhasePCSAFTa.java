@@ -81,7 +81,7 @@ public class PhasePCSAFTa extends PhasePCSAFT implements PhaseCPAInterface {
 
   /** {@inheritDoc} */
   @Override
-  public void init(double totalNumberOfMoles, int numberOfComponents, int type, int phase,
+  public void init(double totalNumberOfMoles, int numberOfComponents, int type, PhaseType phase,
       double beta) {
     if (type == 0) {
       selfAccociationScheme = new int[numberOfComponents][0][0];
@@ -100,11 +100,9 @@ public class PhasePCSAFTa extends PhasePCSAFT implements PhaseCPAInterface {
 
   /** {@inheritDoc} */
   @Override
-  public void addcomponent(String componentName, double moles, double molesInPhase,
-      int compNumber) {
-    super.addcomponent(componentName, moles, molesInPhase, compNumber);
-    componentArray[compNumber] =
-        new ComponentPCSAFTa(componentName, moles, molesInPhase, compNumber);
+  public void addComponent(String name, double moles, double molesInPhase, int compNumber) {
+    super.addComponent(name, moles, molesInPhase, compNumber);
+    componentArray[compNumber] = new ComponentPCSAFTa(name, moles, molesInPhase, compNumber);
   }
 
   /** {@inheritDoc} */

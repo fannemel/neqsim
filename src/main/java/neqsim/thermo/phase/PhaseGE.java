@@ -23,11 +23,11 @@ import neqsim.thermo.mixingRule.EosMixingRulesInterface;
  */
 public class PhaseGE extends Phase implements PhaseGEInterface {
   private static final long serialVersionUID = 1000;
+  static Logger logger = LogManager.getLogger(PhaseGE.class);
 
   EosMixingRules mixSelect = new EosMixingRules();
   EosMixingRulesInterface mixRuleEos;
 
-  static Logger logger = LogManager.getLogger(PhaseGE.class);
 
   /**
    * <p>
@@ -36,7 +36,7 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
    */
   public PhaseGE() {
     super();
-    phaseTypeName = "liquid";
+    setType(PhaseType.LIQUID);
     componentArray = new ComponentGEInterface[MAX_NUMBER_OF_COMPONENTS];
     useVolumeCorrection = false;
   }
@@ -63,7 +63,7 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
     for (int i = 0; i < numberOfComponents; i++) {
       componentArray[i].init(temperature, pressure, totalNumberOfMoles, beta, type);
     }
-    this.getExessGibbsEnergy(this, numberOfComponents, temperature, pressure, type);
+    this.getExcessGibbsEnergy(this, numberOfComponents, temperature, pressure, type);
 
     double sumHydrocarbons = 0.0;
     double sumAqueous = 0.0;
@@ -77,19 +77,19 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
     }
 
     if (sumHydrocarbons > sumAqueous) {
-      phaseTypeName = "oil";
+      setType(PhaseType.OIL);
     } else {
-      phaseTypeName = "aqueous";
+      setType(PhaseType.AQUEOUS);
     }
   }
 
   /** {@inheritDoc} */
   @Override
-  public void init(double totalNumberOfMoles, int numberOfComponents, int initType, int phase,
+  public void init(double totalNumberOfMoles, int numberOfComponents, int initType, PhaseType phase,
       double beta) {
     super.init(totalNumberOfMoles, numberOfComponents, initType, phase, beta);
     if (initType != 0) {
-      getExessGibbsEnergy(this, numberOfComponents, temperature, pressure, phase);
+      getExcessGibbsEnergy(this, numberOfComponents, temperature, pressure, phase.getValue());
     }
 
     double sumHydrocarbons = 0.0;
@@ -104,13 +104,12 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
     }
 
     if (sumHydrocarbons > sumAqueous) {
-      phaseTypeName = "oil";
+      setType(PhaseType.OIL);
     } else {
-      phaseTypeName = "aqueous";
+      setType(PhaseType.AQUEOUS);
     }
 
     // calc liquid density
-
     if (initType > 1) {
       // Calc Cp /Cv
       // Calc enthalpy/entropys
@@ -158,9 +157,9 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
 
   /** {@inheritDoc} */
   @Override
-  public void addcomponent(String componentName, double moles, double molesInPhase,
-      int compNumber) {
-    super.addcomponent(molesInPhase);
+  public void addComponent(String name, double moles, double molesInPhase, int compNumber) {
+    super.addComponent(name, molesInPhase);
+    // TODO: compNumber not in use
   }
 
   /**
@@ -183,22 +182,22 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
 
   /** {@inheritDoc} */
   @Override
-  public double getExessGibbsEnergy(PhaseInterface phase, int numberOfComponents,
+  public double getExcessGibbsEnergy() {
+    logger.error("this getExcessGibbsEnergy should never be used.......");
+    return 0;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public double getExcessGibbsEnergy(PhaseInterface phase, int numberOfComponents,
       double temperature, double pressure, int phasetype) {
-    logger.error("this getExxess should never be used.......");
+    logger.error("this getExcessGibbsEnergy should never be used.......");
     return 0;
   }
 
   /** {@inheritDoc} */
   @Override
   public double getGibbsEnergy() {
-    return 0;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public double getExessGibbsEnergy() {
-    logger.error("this getExxess should never be used.......");
     return 0;
   }
 
@@ -238,9 +237,9 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
     }
     refPhase[k].setTemperature(temperature);
     refPhase[k].setPressure(pressure);
-    refPhase[k].init(refPhase[k].getNumberOfMolesInPhase(), 2, 1, this.getPhaseType(), 1.0);
-    ((PhaseGEInterface) refPhase[k]).getExessGibbsEnergy(refPhase[k], 2,
-        refPhase[k].getTemperature(), refPhase[k].getPressure(), refPhase[k].getPhaseType());
+    refPhase[k].init(refPhase[k].getNumberOfMolesInPhase(), 2, 1, this.getType(), 1.0);
+    ((PhaseGEInterface) refPhase[k]).getExcessGibbsEnergy(refPhase[k], 2,
+        refPhase[k].getTemperature(), refPhase[k].getPressure(), refPhase[k].getType().getValue());
     return ((ComponentGEInterface) refPhase[k].getComponent(0)).getGamma();
   }
 
@@ -257,9 +256,9 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
     dilphase.addMoles(k, -(1.0 - 1e-10) * dilphase.getComponent(k).getNumberOfMolesInPhase());
     dilphase.getComponent(k).setx(1e-10);
     dilphase.init(dilphase.getNumberOfMolesInPhase(), dilphase.getNumberOfComponents(), 1,
-        dilphase.getPhaseType(), 1.0);
-    ((PhaseGEInterface) dilphase).getExessGibbsEnergy(dilphase, 2, dilphase.getTemperature(),
-        dilphase.getPressure(), dilphase.getPhaseType());
+        dilphase.getType(), 1.0);
+    ((PhaseGEInterface) dilphase).getExcessGibbsEnergy(dilphase, 2, dilphase.getTemperature(),
+        dilphase.getPressure(), dilphase.getType().getValue());
     return ((ComponentGEInterface) dilphase.getComponent(0)).getGamma();
   }
 
@@ -307,8 +306,13 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
     return 1470.0;
   }
 
-  // return speed of JT coefficient of water at K/bar (assumed constant)
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   *
+   * <p>
+   * Return speed of JT coefficient of water at K/bar (assumed constant) -0.0125
+   * </p>
+   */
   @Override
   public double getJouleThomsonCoefficient() {
     return -0.125 / 10.0;
@@ -317,7 +321,9 @@ public class PhaseGE extends Phase implements PhaseGEInterface {
   /**
    * {@inheritDoc}
    *
+   * <p>
    * note: at the moment return density of water (997 kg/m3)
+   * </p>
    */
   @Override
   public double getDensity() {

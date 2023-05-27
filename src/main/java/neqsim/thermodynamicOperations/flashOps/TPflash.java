@@ -2,6 +2,7 @@ package neqsim.thermodynamicOperations.flashOps;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import neqsim.thermo.phase.PhaseType;
 import neqsim.thermo.system.SystemInterface;
 import neqsim.thermodynamicOperations.ThermodynamicOperations;
 
@@ -52,11 +53,11 @@ public class TPflash extends Flash {
    * </p>
    *
    * @param system a {@link neqsim.thermo.system.SystemInterface} object
-   * @param solCheck a boolean
+   * @param checkForSolids Set true to check for solid phase and do solid phase calculations.
    */
-  public TPflash(SystemInterface system, boolean solCheck) {
+  public TPflash(SystemInterface system, boolean checkForSolids) {
     this(system);
-    solidCheck = solCheck;
+    solidCheck = checkForSolids;
   }
 
   /**
@@ -90,7 +91,7 @@ public class TPflash extends Flash {
     try {
       system.calcBeta();
     } catch (Exception ex) {
-      logger.error("error in beta calc" + ex.toString());
+      logger.error("error in beta calc", ex);
       system.setBeta(oldBeta);
     }
     if (system.getBeta() > 1.0 - betaTolerance) {
@@ -133,7 +134,7 @@ public class TPflash extends Flash {
         system.setBeta(oldBeta);
       }
       logger.info("temperature " + system.getTemperature() + " pressure " + system.getPressure());
-      logger.error("error", ex);
+      logger.error(ex.getMessage(), ex);
     }
 
     system.calc_x_y();
@@ -177,7 +178,7 @@ public class TPflash extends Flash {
       system.calc_x_y();
       system.init(1);
     } catch (Exception ex) {
-      logger.error("error", ex);
+      logger.error(ex.getMessage(), ex);
     }
   }
 
@@ -189,7 +190,7 @@ public class TPflash extends Flash {
       return;
     }
 
-    findLowesGibsPhaseIsChecked = false;
+    findLowestGibbsPhaseIsChecked = false;
     int minGibbsPhase = 0;
     double minimumGibbsEnergy = 0;
 
@@ -221,7 +222,9 @@ public class TPflash extends Flash {
     minGibsLogFugCoef = new double[system.getPhase(0).getNumberOfComponents()];
 
     for (int i = 0; i < system.getPhase(0).getNumberOfComponents(); i++) {
-      minGibsPhaseLogZ[i] = Math.log(system.getPhase(minGibbsPhase).getComponent(i).getz());
+      if (system.getPhase(minGibbsPhase).getComponent(i).getz() > 1e-50) {
+        minGibsPhaseLogZ[i] = Math.log(system.getPhase(minGibbsPhase).getComponent(i).getz());
+      }
       minGibsLogFugCoef[i] =
           system.getPhase(minGibbsPhase).getComponent(i).getLogFugacityCoefficient();
     }
@@ -244,7 +247,7 @@ public class TPflash extends Flash {
     try {
       system.calcBeta();
     } catch (Exception ex) {
-      logger.error("error", ex);
+      logger.error(ex.getMessage(), ex);
     }
     system.calc_x_y();
     system.init(1);
@@ -289,14 +292,16 @@ public class TPflash extends Flash {
       dgonRT = -1.0;
     } else {
       for (i = 0; i < system.getPhases()[0].getNumberOfComponents(); i++) {
-        tpdy += system.getPhase(0).getComponent(i).getx()
-            * (Math.log(system.getPhase(0).getComponent(i).getFugacityCoefficient())
-                + Math.log(system.getPhase(0).getComponents()[i].getx()) - minGibsPhaseLogZ[i]
-                - minGibsLogFugCoef[i]);
-        tpdx += system.getPhase(1).getComponent(i).getx()
-            * (Math.log(system.getPhase(1).getComponent(i).getFugacityCoefficient())
-                + Math.log(system.getPhase(1).getComponents()[i].getx()) - minGibsPhaseLogZ[i]
-                - minGibsLogFugCoef[i]);
+        if (system.getComponent(i).getz() > 1e-50) {
+          tpdy += system.getPhase(0).getComponent(i).getx()
+              * (Math.log(system.getPhase(0).getComponent(i).getFugacityCoefficient())
+                  + Math.log(system.getPhase(0).getComponents()[i].getx()) - minGibsPhaseLogZ[i]
+                  - minGibsLogFugCoef[i]);
+          tpdx += system.getPhase(1).getComponent(i).getx()
+              * (Math.log(system.getPhase(1).getComponent(i).getFugacityCoefficient())
+                  + Math.log(system.getPhase(1).getComponents()[i].getx()) - minGibsPhaseLogZ[i]
+                  - minGibsLogFugCoef[i]);
+        }
       }
 
       dgonRT = system.getPhase(0).getBeta() * tpdy + (1.0 - system.getPhase(0).getBeta()) * tpdx;
@@ -324,29 +329,25 @@ public class TPflash extends Flash {
     }
 
     if (passedTests || (dgonRT > 0 && tpdx > 0 && tpdy > 0) || Double.isNaN(system.getBeta())) {
-      if (system.checkStability()) {
-        if (stabilityCheck()) {
-          if (system.doMultiPhaseCheck()) {
-            // logger.info("one phase flash is stable - checking multiphase flash....
-            // ");
-            TPmultiflash operation = new TPmultiflash(system, true);
-            operation.run();
-            // commented out by Even Solbraa 6/2-2012k
-            // system.orderByDensity();
-            // system.init(3);
-          }
-          if (solidCheck) {
-            this.solidPhaseFlash();
-          }
-          if (system.isMultiphaseWaxCheck()) {
-            TPmultiflashWAX operation = new TPmultiflashWAX(system, true);
-            operation.run();
-          }
-
-          system.orderByDensity();
-          system.init(1);
-          return;
+      if (system.checkStability() && stabilityCheck()) {
+        if (system.doMultiPhaseCheck()) {
+          // logger.info("one phase flash is stable - checking multiphase flash....");
+          TPmultiflash operation = new TPmultiflash(system, true);
+          operation.run();
         }
+        if (solidCheck) {
+          this.solidPhaseFlash();
+        }
+        if (system.isMultiphaseWaxCheck()) {
+          TPmultiflashWAX operation = new TPmultiflashWAX(system, true);
+          operation.run();
+        }
+
+        system.orderByDensity();
+        system.init(1);
+        // commented out by Even Solbraa 6/2-2012k
+        // system.init(3);
+        return;
       }
     }
 
@@ -452,7 +453,7 @@ public class TPflash extends Flash {
       operation.run();
     } else {
       // Checks if gas or oil is the most stable phase
-      if (system.getPhase(0).getPhaseType() == 1) {
+      if (system.getPhase(0).getType() == PhaseType.GAS) {
         gasgib = system.getPhase(0).getGibbsEnergy();
         system.setPhaseType(0, 0);
         system.init(1, 0);

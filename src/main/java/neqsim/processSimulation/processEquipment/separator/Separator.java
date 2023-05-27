@@ -42,19 +42,28 @@ public class Separator extends ProcessEquipmentBaseClass implements SeparatorInt
   SystemInterface liquidSystem;
   SystemInterface thermoSystemCloned;
   SystemInterface thermoSystem2;
+
+  /** Orientation of separator. "horizontal" or "vertical" */
   private String orientation = "horizontal";
   StreamInterface gasOutStream;
   StreamInterface liquidOutStream;
+
   private double pressureDrop = 0.0;
-  private double internalDiameter = 1.0;
   public int numberOfInputStreams = 0;
   Mixer inletStreamMixer = new Mixer("Separator Inlet Stream Mixer");
   private double efficiency = 1.0;
   private double liquidCarryoverFraction = 0.0;
   private double gasCarryunderFraction = 0.0;
+
+  /** Length of separator volume. */
   private double separatorLength = 5.0;
+  /** Inner diameter/height of separator volume. */
+  private double internalDiameter = 1.0;
+
   double liquidVolume = 1.0;
   double gasVolume = 18.0;
+
+  /** LiquidLevel as volume fraction of liquidvolume/(liquid + gas volume). */
   private double liquidLevel = liquidVolume / (liquidVolume + gasVolume);
   private double designLiquidLevelFraction = 0.8;
   ArrayList<SeparatorSection> separatorSection = new ArrayList<SeparatorSection>();
@@ -100,7 +109,14 @@ public class Separator extends ProcessEquipmentBaseClass implements SeparatorInt
     setInletStream(inletStream);
   }
 
-  public SeparatorMechanicalDesign gMechanicalDesign() {
+  /**
+   * {@inheritDoc}
+   *
+   * @return a {@link neqsim.processSimulation.mechanicalDesign.separator.SeparatorMechanicalDesign}
+   *         object
+   */
+  @Override
+  public SeparatorMechanicalDesign getMechanicalDesign() {
     return new SeparatorMechanicalDesign(this);
   }
 
@@ -258,7 +274,7 @@ public class Separator extends ProcessEquipmentBaseClass implements SeparatorInt
       // System.out.println("moles out" +
       // liquidOutStream.getThermoSystem().getTotalNumberOfMoles());
     } catch (Exception ex) {
-      logger.error(ex.getMessage());
+      logger.error(ex.getMessage(), ex);
     }
     thermoSystem = thermoSystem2;
     setCalculationIdentifier(id);
@@ -658,15 +674,15 @@ public class Separator extends ProcessEquipmentBaseClass implements SeparatorInt
    * @param type a {@link java.lang.String} object
    */
   public void addSeparatorSection(String name, String type) {
-    if (type.equals("vane")) {
+    if (type.equalsIgnoreCase("vane")) {
       separatorSection.add(new SeparatorSection(name, type, this));
-    } else if (type.equals("meshpad")) {
+    } else if (type.equalsIgnoreCase("meshpad")) {
       separatorSection.add(new MeshSection(name, type, this));
-    } else if (type.equals("manway")) {
+    } else if (type.equalsIgnoreCase("manway")) {
       separatorSection.add(new ManwaySection(name, type, this));
-    } else if (type.equals("valve")) {
+    } else if (type.equalsIgnoreCase("valve")) {
       separatorSection.add(new ValveSection(name, type, this));
-    } else if (type.equals("nozzle")) {
+    } else if (type.equalsIgnoreCase("nozzle")) {
       separatorSection.add(new NozzleSection(name, type, this));
     } else {
       separatorSection.add(new SeparatorSection(name, type, this));
@@ -807,8 +823,7 @@ public class Separator extends ProcessEquipmentBaseClass implements SeparatorInt
   }
 
   /*
-   * private class SeparatorReport extends Object{ public Double gasLoadFactor;
-   * SeparatorReport(){
+   * private class SeparatorReport extends Object{ public Double gasLoadFactor; SeparatorReport(){
    * gasLoadFactor = getGasLoadFactor(); } }
    * 
    * public SeparatorReport getReport(){ return this.new SeparatorReport(); }

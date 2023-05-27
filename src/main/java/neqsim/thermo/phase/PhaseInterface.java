@@ -24,12 +24,28 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    * addcomponent.
    * </p>
    *
-   * @param componentName a {@link java.lang.String} object
-   * @param molesInPhase a double
+   * @param name Name of component.
    * @param moles a double
+   * @param molesInPhase a double
    * @param compNumber a int
    */
-  public void addcomponent(String componentName, double molesInPhase, double moles, int compNumber);
+  public void addComponent(String name, double moles, double molesInPhase, int compNumber);
+
+  /**
+   * <p>
+   * addcomponent.
+   * </p>
+   *
+   * @param name Name of component.
+   * @param moles a double
+   * @param molesInPhase a double
+   * @param compNumber a int
+   * @deprecated Replaced by {@link addComponent}
+   */
+  @Deprecated
+  public default void addcomponent(String name, double moles, double molesInPhase, int compNumber) {
+    this.addComponent(name, moles, molesInPhase, compNumber);
+  }
 
   /**
    * <p>
@@ -76,14 +92,14 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
   public double getDensity_AGA8();
 
   /**
-   * method to get the Joule Thomson Coefficient of a phase note: implemented in phaseEos.
+   * method to get the Joule Thomson Coefficient of a phase.
    *
    * @return Joule Thomson coefficient in K/bar
    */
   public double getJouleThomsonCoefficient();
 
   /**
-   * method to get the Joule Thomson Coefficient of a phase note: implemented in phaseEos.
+   * method to get the Joule Thomson Coefficient of a phase.
    *
    * @param unit Supported units are K/bar, C/bar
    * @return Joule Thomson coefficient in specified unit
@@ -157,6 +173,42 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
+   * getCompressibilityX.
+   * </p>
+   *
+   * @return a double
+   */
+  public double getCompressibilityX();
+
+  /**
+   * <p>
+   * getCompressibilityY.
+   * </p>
+   *
+   * @return a double
+   */
+  public double getCompressibilityY();
+
+  /**
+   * <p>
+   * getIsothermalCompressibility.
+   * </p>
+   *
+   * @return a double
+   */
+  public double getIsothermalCompressibility();
+
+  /**
+   * <p>
+   * getIsobaricThermalExpansivity.
+   * </p>
+   *
+   * @return a double
+   */
+  public double getIsobaricThermalExpansivity();
+
+  /**
+   * <p>
    * getdrhodN.
    * </p>
    *
@@ -177,22 +229,55 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    * <p>
    * init.
    * </p>
-   *
-   * @param totalNumberOfMoles a double
-   * @param numberOfComponents a int
-   * @param type a int. Use 0 to init, and 1 to reset.
-   * @param phase a int
-   * @param beta a double
    */
-  public void init(double totalNumberOfMoles, int numberOfComponents, int type, int phase,
+  public void init();
+
+  /**
+   * <p>
+   * init. Uses existing phase type.
+   * </p>
+   *
+   * @param totalNumberOfMoles Total number of moles in all phases of Stream.
+   * @param numberOfComponents Number of components in system.
+   * @param type a int. Use 0 to init, and 1 to reset.
+   * @param beta Mole fraction of this phase in system.
+   */
+  public default void init(double totalNumberOfMoles, int numberOfComponents, int type,
+      double beta) {
+    init(totalNumberOfMoles, numberOfComponents, type, getType(), beta);
+  }
+
+  /**
+   * <p>
+   * init.
+   * </p>
+   *
+   * @param totalNumberOfMoles Total number of moles in all phases of Stream.
+   * @param numberOfComponents Number of components in system.
+   * @param type a int. Use 0 to init, and 1 to reset.
+   * @param pt Type of phase.
+   * @param beta Mole fraction of this phase in system.
+   */
+  public void init(double totalNumberOfMoles, int numberOfComponents, int type, PhaseType pt,
       double beta);
 
   /**
    * <p>
    * init.
    * </p>
+   *
+   * @param totalNumberOfMoles Total number of moles in system.
+   * @param numberOfComponents Number of components in system.
+   * @param type a int. Use 0 to init, and 1 to reset.
+   * @param ptNumber Phase type index.
+   * @param beta Mole fraction of this phase in system.
+   * @deprecated Replace with init-function using PhaseType input.
    */
-  public void init();
+  @Deprecated
+  public default void init(double totalNumberOfMoles, int numberOfComponents, int type,
+      int ptNumber, double beta) {
+    init(totalNumberOfMoles, numberOfComponents, type, PhaseType.byValue(ptNumber), beta);
+  }
 
   /**
    * <p>
@@ -206,7 +291,7 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    * initPhysicalProperties.
    * </p>
    *
-   * @param type a {@link java.lang.String} object
+   * @param type a {@link String} object
    */
   public void initPhysicalProperties(String type);
 
@@ -362,13 +447,12 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    * removeComponent.
    * </p>
    *
-   * @param componentName a {@link java.lang.String} object
+   * @param name a {@link String} object
    * @param moles a double
    * @param molesInPhase a double
    * @param compNumber a int
    */
-  public void removeComponent(String componentName, double moles, double molesInPhase,
-      int compNumber);
+  public void removeComponent(String name, double moles, double molesInPhase, int compNumber);
 
   /**
    * <p>
@@ -385,7 +469,7 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    * getFugacity.
    * </p>
    *
-   * @param compName a {@link java.lang.String} object
+   * @param compName a {@link String} object
    * @return a double
    */
   public double getFugacity(String compName);
@@ -427,12 +511,66 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
+   * getGibbsEnergy.
+   * </p>
+   *
+   * @return a double
+   */
+  public double getGibbsEnergy();
+
+  /**
+   * <p>
    * getMixGibbsEnergy.
    * </p>
    *
    * @return a double
    */
   public double getMixGibbsEnergy();
+
+  /**
+   * <p>
+   * getExessGibbsEnergy.
+   * </p>
+   *
+   * @return a double
+   * @deprecated Replaced by {@link getExcessGibbsEnergy}.
+   */
+  @Deprecated
+  public default double getExessGibbsEnergy() {
+    return getExcessGibbsEnergy();
+  }
+
+  /**
+   * <p>
+   * getExessGibbsEnergySymetric.
+   * </p>
+   *
+   *
+   * @return a double
+   * @deprecated Replace by {@link getExcessGibbsEnergySymetric}.
+   */
+  @Deprecated
+  public default double getExessGibbsEnergySymetric() {
+    return getExcessGibbsEnergySymetric();
+  }
+
+  /**
+   * <p>
+   * getExcessGibbsEnergy.
+   * </p>
+   *
+   * @return a double
+   */
+  public double getExcessGibbsEnergy();
+
+  /**
+   * <p>
+   * getExcessGibbsEnergySymetric.
+   * </p>
+   *
+   * @return a double
+   */
+  public double getExcessGibbsEnergySymetric();
 
   /**
    * <p>
@@ -445,15 +583,6 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
-   * getExessGibbsEnergy.
-   * </p>
-   *
-   * @return a double
-   */
-  public double getExessGibbsEnergy();
-
-  /**
-   * <p>
    * getSresTP.
    * </p>
    *
@@ -463,25 +592,7 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
-   * Setter for property phaseType.
-   * </p>
-   *
-   * @param phaseType a int
-   */
-  public void setPhaseType(int phaseType);
-
-  /**
-   * <p>
-   * Setter for property beta.
-   * </p>
-   *
-   * @param beta a double
-   */
-  public void setBeta(double beta);
-
-  /**
-   * <p>
-   * setProperties.
+   * setProperties. Transfer properties from another phase object.
    * </p>
    *
    * @param phase a {@link neqsim.thermo.phase.PhaseInterface} object
@@ -508,12 +619,23 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
-   * getBeta.
+   * Getter for property <code>beta</code>. Beta is the mole fraction of a phase of all the moles of
+   * a system.
    * </p>
    *
-   * @return a double
+   * @return Beta value
    */
   public double getBeta();
+
+  /**
+   * <p>
+   * Setter for property <code>beta</code>. Beta is the mole fraction of a phase of all the moles of
+   * a system.
+   * </p>
+   *
+   * @param b Beta value to set.
+   */
+  public void setBeta(double b);
 
   /**
    * <p>
@@ -530,7 +652,7 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    * getWtFrac.
    * </p>
    *
-   * @param componentName a {@link java.lang.String} object
+   * @param componentName a {@link String} object
    * @return a double
    */
   public double getWtFrac(String componentName);
@@ -540,26 +662,26 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    * setMixingRuleGEModel.
    * </p>
    *
-   * @param name a {@link java.lang.String} object
+   * @param name a {@link String} object
    */
   public void setMixingRuleGEModel(String name);
 
   /**
    * <p>
-   * getComponent.
+   * Get Component by name.
    * </p>
    *
-   * @param name a {@link java.lang.String} object
+   * @param name Name of component
    * @return a {@link neqsim.thermo.component.ComponentInterface} object
    */
   public ComponentInterface getComponent(String name);
 
   /**
    * <p>
-   * getComponent.
+   * Get Component by index.
    * </p>
    *
-   * @param i a int
+   * @param i Component index
    * @return a {@link neqsim.thermo.component.ComponentInterface} object
    */
   public ComponentInterface getComponent(int i);
@@ -643,28 +765,57 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
-   * addMolesChemReac.
+   * Change the number of moles of component of phase,i.e., <code>numberOfMolesInPhase</code> but do
+   * not change the total number of moles of component in system.
+   * 
+   * NB! Phase fraction <code>beta</code> is not updated by this method. Must be done separately to
+   * keep consistency between phase and component calculation of of total number of moles in system.
    * </p>
    *
-   * @param component a int
-   * @param dn a double
+   * @param component Component number to change
+   * @param dn Number of moles of component added to phase
    */
-  public void addMolesChemReac(int component, double dn);
+  public default void addMoles(int component, double dn) {
+    addMolesChemReac(component, dn, 0);
+  }
 
   /**
    * <p>
-   * addMolesChemReac.
+   * Change the number of moles of component of phase, i.e., <code>numberOfMolesInPhase</code>, and
+   * total number of moles of component in system, i.e., <code>numberOfMoles</code> with the same
+   * amount.
+   * 
+   * NB! Phase fraction <code>beta</code> is not updated by this method. Must be done separately to
+   * keep consistency between phase and component calculation of of total number of moles in system.
    * </p>
    *
-   * @param component Component number
-   * @param dn a double
-   * @param totdn a double
+   * @param component Component number to change
+   * @param dn Number of moles of component added to phase and system
+   */
+  public default void addMolesChemReac(int component, double dn) {
+    addMolesChemReac(component, dn, dn);
+  }
+
+  /**
+   * <p>
+   * Change the number of moles of component of phase, i.e., <code>numberOfMolesInPhase</code> and
+   * <code>Component</code> properties for the number of moles of component of phase, i.e.,
+   * <code>numberOfMolesInPhase</code>, and total number of moles of component in system, i.e.,
+   * <code>numberOfMoles</code> with separate amounts.
+   * 
+   * NB! Phase fraction <code>beta</code> is not updated by this method. Must be done separately to
+   * keep consistency between phase and component calculation of of total number of moles in system.
+   * </p>
+   *
+   * @param component Component number to change
+   * @param dn Number of moles of component to add to phase
+   * @param totdn Number of moles of component to add to system
    */
   public void addMolesChemReac(int component, double dn, double totdn);
 
   /**
    * <p>
-   * setEmptyFluid.
+   * Set the flow rate (moles) of all components to zero.
    * </p>
    */
   public void setEmptyFluid();
@@ -678,11 +829,10 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
-   * specify the type model for the physical properties you want to use. Type: 0 Orginal/default 1
-   * Water 2 Glycol 3 Amine
+   * specify the type model for the physical properties you want to use.
    * </p>
    *
-   * @param type a int
+   * @param type 0 Orginal/default 1 Water 2 Glycol 3 Amine 4 CO2Water 6 Basic
    */
   public void setPhysicalProperties(int type);
 
@@ -922,16 +1072,6 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
   double getg();
 
   /**
-   * <p>
-   * addMoles.
-   * </p>
-   *
-   * @param component a int
-   * @param dn a double
-   */
-  public void addMoles(int component, double dn);
-
-  /**
    * method to return enthalpy of a phase in unit Joule.
    *
    * @return a double
@@ -987,11 +1127,9 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * method to return conductivity in a specified unit.
-   * 
    *
    * @param unit Supported units are W/mK, W/cmK
    * @return conductivity in specified unit
-   *
    * @deprecated use {@link #getThermalConductivity(String unit)} instead.
    */
   @Deprecated
@@ -1160,15 +1298,6 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
-   * getPhaseType.
-   * </p>
-   *
-   * @return a int
-   */
-  public int getPhaseType();
-
-  /**
-   * <p>
    * calcMolarVolume.
    * </p>
    *
@@ -1276,15 +1405,6 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    */
   public double getATT();
   // public double getAiT();
-
-  /**
-   * <p>
-   * getGibbsEnergy.
-   * </p>
-   *
-   * @return a double
-   */
-  public double getGibbsEnergy();
 
   /**
    * <p>
@@ -1773,29 +1893,73 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
    * @param alpha an array of {@link double} objects
    * @param Dij an array of {@link double} objects
    * @param DijT an array of {@link double} objects
-   * @param mixRule an array of {@link java.lang.String} objects
+   * @param mixRule an array of {@link String} objects
    * @param intparam an array of {@link double} objects
    */
   public void setParams(PhaseInterface phase, double[][] alpha, double[][] Dij, double[][] DijT,
       String[][] mixRule, double[][] intparam);
 
   /**
+   * Getter for property pt.
+   *
+   * @return PhaseType enum object.
+   */
+  public PhaseType getType();
+
+  /**
+   * Setter for property pt.
+   *
+   * @param pt PhaseType to set.
+   */
+  public void setType(PhaseType pt);
+
+  /**
+   * <p>
+   * Getter for property phasetype as int.
+   * </p>
+   *
+   * @return a int
+   * @deprecated Replace with {@link getType}
+   */
+  @Deprecated
+  public default int getPhaseType() {
+    return getType().getValue();
+  }
+
+  /**
+   * <p>
+   * Setter for property phaseType.
+   * </p>
+   *
+   * @param phaseType Phasetype as int.
+   * @deprecated Replace with {@link setType}
+   */
+  @Deprecated
+  public default void setPhaseType(int phaseType) {
+    setType(PhaseType.byValue(phaseType));
+  }
+
+  /**
    * <p>
    * Getter for property phaseTypeName.
    * </p>
    *
-   * @return a {@link java.lang.String} object
+   * @return a {@link String} object
    */
-  public java.lang.String getPhaseTypeName();
+  public default String getPhaseTypeName() {
+    return getType().getDesc();
+  }
 
   /**
    * <p>
    * Setter for property phaseTypeName.
    * </p>
    *
-   * @param phaseTypeName a {@link java.lang.String} object
+   * @param phaseTypeName a {@link String} object
    */
-  public void setPhaseTypeName(java.lang.String phaseTypeName);
+  public default void setPhaseTypeName(String phaseTypeName) {
+    setType(PhaseType.byDesc(phaseTypeName));
+  }
 
   /**
    * <p>
@@ -1837,19 +2001,10 @@ public interface PhaseInterface extends ThermodynamicConstantsInterface, Cloneab
 
   /**
    * <p>
-   * getExessGibbsEnergySymetric.
-   * </p>
-   *
-   * @return a double
-   */
-  public double getExessGibbsEnergySymetric();
-
-  /**
-   * <p>
    * hasComponent.
    * </p>
    *
-   * @param name a {@link java.lang.String} object
+   * @param name a {@link String} object
    * @return a boolean
    */
   public boolean hasComponent(String name);

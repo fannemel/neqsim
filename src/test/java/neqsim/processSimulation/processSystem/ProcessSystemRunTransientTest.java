@@ -98,7 +98,7 @@ public class ProcessSystemRunTransientTest extends neqsim.NeqSimTest {
     // transient behaviour
     p.setTimeStep(1.0);
     for (int i = 0; i < 5; i++) {
-      // System.out.println("volume flow " + flowTransmitter.getMeasuredValue()
+      // logger.info("volume flow " + flowTransmitter.getMeasuredValue()
       // + " valve opening " + valve_1.getPercentValveOpening() + " pressure "
       // + separator_1.getGasOutStream().getPressure());
       p.runTransient();
@@ -148,7 +148,6 @@ public class ProcessSystemRunTransientTest extends neqsim.NeqSimTest {
 
     LevelTransmitter separatorLevelTransmitter = new LevelTransmitter(separator1);
     separatorLevelTransmitter.setName("separatorLevelTransmitter1");
-    separatorLevelTransmitter.setUnit("meter");
     separatorLevelTransmitter.setMaximumValue(1.0);
     separatorLevelTransmitter.setMinimumValue(0.0);
 
@@ -194,7 +193,7 @@ public class ProcessSystemRunTransientTest extends neqsim.NeqSimTest {
     // p.displayResult();
     p.setTimeStep(0.01);
     for (int i = 0; i < 500; i++) {
-      // System.out.println("pressure "+separator_1.getGasOutStream().getPressure()+ " flow "+
+      // logger.info("pressure "+separator_1.getGasOutStream().getPressure()+ " flow "+
       // separator_1.getGasOutStream().getFlowRate("kg/hr") + " sepr height
       // "+separatorLevelTransmitter.getMeasuredValue());
       p.runTransient();
@@ -206,7 +205,7 @@ public class ProcessSystemRunTransientTest extends neqsim.NeqSimTest {
     valve1.setPercentValveOpening(60);
 
     for (int i = 0; i < 10; i++) {
-      // System.out.println("pressure "+separator_1.getGasOutStream().getPressure()+ " flow "+
+      // logger.info("pressure "+separator_1.getGasOutStream().getPressure()+ " flow "+
       // separator_1.getGasOutStream().getFlowRate("kg/hr"));
       p.runTransient();
       for (SimulationInterface sim : p.getUnitOperations()) {
