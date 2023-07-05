@@ -18,6 +18,7 @@ import neqsim.thermo.system.SystemInterface;
 public class Standard_ISO6976 extends neqsim.standards.Standard
     implements neqsim.thermo.ThermodynamicConstantsInterface {
   private static final long serialVersionUID = 1000;
+  static Logger logger = LogManager.getLogger(Standard_ISO6976.class);
 
   // metering conditions
   ArrayList<String> componentsNotDefinedByStandard = new ArrayList<String>();
@@ -74,8 +75,6 @@ public class Standard_ISO6976 extends neqsim.standards.Standard
   double densIdeal = 0.0;
   double densReal = 0.0;
 
-  static Logger logger = LogManager.getLogger(Standard_ISO6976.class);
-
   /**
    * Constructor for Standard_ISO6976.
    *
@@ -123,7 +122,7 @@ public class Standard_ISO6976 extends neqsim.standards.Standard
 
       for (int i = 0; i < thermoSystem.getPhase(0).getNumberOfComponents(); i++) {
         try {
-          dataSet = database.getResultSet(("SELECT * FROM iso6976constants WHERE ComponentName='"
+          dataSet = database.getResultSet(("SELECT * FROM ISO6976constants WHERE ComponentName='"
               + this.thermoSystem.getPhase(0).getComponent(i).getName() + "'"));
           dataSet.next();
           dataSet.getString("ID");
@@ -248,7 +247,6 @@ public class Standard_ISO6976 extends neqsim.standards.Standard
   /** {@inheritDoc} */
   @Override
   public double getValue(String returnParameter, java.lang.String returnUnit) {
-
     checkReferenceCondition();
 
     if (returnParameter.equals("GCV")) {
@@ -373,7 +371,6 @@ public class Standard_ISO6976 extends neqsim.standards.Standard
    * </p>
    */
   public void checkReferenceCondition() {
-
     Double[] validvalues = {0.0, 15.0, 15.55, 20.0};
 
     if (!java.util.Arrays.stream(validvalues).anyMatch(Double.valueOf(energyRefT)::equals)) {

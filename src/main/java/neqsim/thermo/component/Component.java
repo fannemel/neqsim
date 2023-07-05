@@ -47,7 +47,6 @@ abstract class Component implements ComponentInterface {
 
   protected int attractiveTermNumber = 0;
   protected int numberOfAssociationSites = 0;
-  protected double logFugacityCoefficient = 0.0;
   protected double associationVolume = 0.0;
   protected double associationEnergy = 0.0;
   protected double aCPA = 0.0;
@@ -494,15 +493,14 @@ abstract class Component implements ComponentInterface {
   /** {@inheritDoc} */
   @Override
   public void addMolesChemReac(double dn, double totdn) {
+    if (numberOfMoles + totdn < 0 || numberOfMolesInPhase + dn < 0) {
+      String msg = "will lead to negative number of moles of component in phase";
+      neqsim.util.exception.InvalidInputException ex =
+          new neqsim.util.exception.InvalidInputException(this, "addMolesChemReac", "dn", msg);
+      throw new RuntimeException(ex);
+    }
     numberOfMoles += totdn;
-    if (numberOfMoles < 0) {
-      numberOfMoles = 0;
-    }
-
     numberOfMolesInPhase += dn;
-    if (numberOfMolesInPhase < 0) {
-      numberOfMolesInPhase = 0;
-    }
   }
 
   /** {@inheritDoc} */
@@ -519,7 +517,6 @@ abstract class Component implements ComponentInterface {
   @Override
   public void init(double temperature, double pressure, double totalNumberOfMoles, double beta,
       int type) {
-
     if (totalNumberOfMoles == 0) {
       throw new RuntimeException(new neqsim.util.exception.InvalidInputException(this, "init",
           "totalNumberOfMoles", "must be larger than 0"));
@@ -945,7 +942,6 @@ abstract class Component implements ComponentInterface {
     fugacityCoefficient = 1.0;
     // this.fugcoef(phase, phase.getNumberOfComponents(), phase.getTemperature(),
     // phase.getPressure());
-    logFugacityCoefficient = Math.log(fugacityCoefficient);
     return fugacityCoefficient;
   }
 
@@ -1418,12 +1414,6 @@ abstract class Component implements ComponentInterface {
 
   /** {@inheritDoc} */
   @Override
-  public final double getLogFugacityCoefficient() {
-    return logFugacityCoefficient;
-  }
-
-  /** {@inheritDoc} */
-  @Override
   public final int getAttractiveTermNumber() {
     return attractiveTermNumber;
   }
@@ -1500,7 +1490,6 @@ abstract class Component implements ComponentInterface {
   @Override
   public void setFugacityCoefficient(double val) {
     fugacityCoefficient = val;
-    logFugacityCoefficient = Math.log(fugacityCoefficient);
   }
 
   /** {@inheritDoc} */
