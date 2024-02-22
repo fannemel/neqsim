@@ -2,6 +2,7 @@ package neqsim.thermo.component;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import neqsim.thermo.ThermodynamicConstantsInterface;
 import neqsim.thermo.phase.PhaseInterface;
 import neqsim.util.database.NeqSimDataBase;
 
@@ -32,8 +33,7 @@ public class ComponentHydrate extends Component {
   // double[] dHfHydrate = {-292714.5, -292016.0};
   double[] dGfHydrate = {-235557, -235614};
   double[] dHfHydrate = {-291786, -292016};
-  double[] reffug =
-      new double[neqsim.thermo.ThermodynamicConstantsInterface.MAX_NUMBER_OF_COMPONENTS];
+  double[] reffug = new double[neqsim.thermo.ThermodynamicModelSettings.MAX_NUMBER_OF_COMPONENTS];
   private double sphericalCoreRadiusHydrate = 0.0;
   private double lennardJonesEnergyParameterHydrate = 0.0;
   private double lennardJonesMolecularDiameterHydrate = 0.0;
@@ -224,8 +224,10 @@ public class ComponentHydrate extends Component {
     if (type == -1) {
       return getSolidVaporPressure(temperature);
     } else {
-      return Math.exp(getEmptyHydrateVapourPressureConstant(type, 0)
-          + getEmptyHydrateVapourPressureConstant(type, 1) / temperature) * 1.01325;
+      return Math
+          .exp(getEmptyHydrateVapourPressureConstant(type, 0)
+              + getEmptyHydrateVapourPressureConstant(type, 1) / temperature)
+          * ThermodynamicConstantsInterface.referencePressure;
     }
   }
 
@@ -684,17 +686,20 @@ public class ComponentHydrate extends Component {
   // Math.exp(par1_struc1*Math.log(temperature)+par2_struc1/temperature+par3_struc1+par4_struc1*temperature)/1.0e5;
   // }
   // if(type==1){
-  // return Math.exp(par1_struc2+par2_struc2/temperature)*1.01325;
+  // return
+  // Math.exp(par1_struc2+par2_struc2/temperature)*ThermodynamicConstantsInterface.referencePressure;
   // } else return 0.0;
   // }
 
   // public double getEmptyHydrateStructureVapourPressure(int type, double
   // temperature){
   // if(type==0){
-  // return Math.exp(par1_struc1+par2_struc1/temperature)*1.01325;
+  // return
+  // Math.exp(par1_struc1+par2_struc1/temperature)*ThermodynamicConstantsInterface.referencePressure;
   // }
   // if(type==1){
-  // return Math.exp(par1_struc2+par2_struc2/temperature)*1.01325;
+  // return
+  // Math.exp(par1_struc2+par2_struc2/temperature)*ThermodynamicConstantsInterface.referencePressure;
   // } else return 0.0;
   // }
 

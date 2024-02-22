@@ -61,7 +61,6 @@ public class NeqSimProcessDesignDataBase extends NeqSimDataBase {
     }
   }
 
-
   /**
    * Drops and re-creates table from contents in csv file.
    * 
@@ -70,7 +69,6 @@ public class NeqSimProcessDesignDataBase extends NeqSimDataBase {
   public static void updateTable(String tableName) {
     updateTable(tableName, "designdata/" + tableName + ".csv");
   }
-
 
   public static void initH2DatabaseFromCSVfiles() {
     h2IsInitalizing = true;

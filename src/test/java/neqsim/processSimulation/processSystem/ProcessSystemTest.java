@@ -171,110 +171,82 @@ public class ProcessSystemTest extends neqsim.NeqSimTest {
   }
 
   @Test
-  void testDisplayResult() {}
+  void testGetAllUnitNames() {}
 
   @Test
-  void testGetAllUnitNames() {
-  }
+  void testGetConditionMonitor() {}
 
   @Test
-  void testGetConditionMonitor() {
-  }
+  void testGetCoolerDuty() {}
 
   @Test
-  void testGetCoolerDuty() {
-  }
+  void testGetCostEstimator() {}
 
   @Test
-  void testGetCostEstimator() {
-  }
+  void testGetEntropyProduction() {}
 
   @Test
-  void testGetEntropyProduction() {
-  }
+  void testGetExergyChange() {}
 
   @Test
-  void testGetExergyChange() {
-  }
+  void testGetHeaterDuty() {}
 
   @Test
-  void testGetHeaterDuty() {
-  }
+  void testGetMeasurementDevice() {}
 
   @Test
-  void testGetMeasurementDevice() {
-  }
+  void testGetMechanicalWeight() {}
 
   @Test
-  void testGetMechanicalWeight() {
-  }
+  void testGetPower() {}
 
   @Test
-  void testGetPower() {
-  }
+  void testGetSurroundingTemperature() {}
 
   @Test
-  void testGetSurroundingTemperature() {
-  }
+  void testGetSystemMechanicalDesign() {}
 
   @Test
-  void testGetSystemMechanicalDesign() {
-  }
+  void testGetUnit() {}
 
   @Test
-  void testGetUnit() {
-  }
+  void testGetUnitOperations() {}
 
   @Test
-  void testGetUnitOperations() {
-  }
+  void testOpen() {}
 
   @Test
-  void testOpen() {
-  }
+  void testPrintLogFile() {}
 
   @Test
-  void testPrintLogFile() {
-  }
+  void testReplaceObject() {}
 
   @Test
-  void testReplaceObject() {
-  }
+  void testReportMeasuredValues() {}
 
   @Test
-  void testReportMeasuredValues() {
-  }
+  void testReportResults() {}
 
   @Test
-  void testReportResults() {
-  }
+  void testRun() {}
 
   @Test
-  void testRun() {
-  }
+  void testRunAsThread() {}
 
   @Test
-  void testRunAsThread() {
-  }
+  void testSave() {}
 
   @Test
-  void testSave() {
-  }
-
-  @Test
-  void testSetFluid() {
-  }
+  void testSetFluid() {}
 
   @Test
   void testSetName() {}
 
   @Test
-  void testSetSystemMechanicalDesign() {
-  }
+  void testSetSystemMechanicalDesign() {}
 
   @Test
-  void testSize() {
-  }
+  void testSize() {}
 
   @Test
   void testView() {}
@@ -587,15 +559,16 @@ public class ProcessSystemTest extends neqsim.NeqSimTest {
     operations.add(leanTEGtoabs);
     operations.add(resycleLeanTEG);
     operations.run();
-    System.out.println("flowo " + hotLeanTEGPump.getOutletStream().getFlowRate("kg/hr"));
-    System.out.println("makeup " + makeupTEG.getFlowRate("kg/hr"));
-    System.out.println("mixo " + coolerhOTteg3.getOutletStream().getFlowRate("kg/hr"));
-    System.out.println("leantoresirc " + leanTEGtoabs.getFlowRate("kg/hr"));
-    // operations.run();
-    System.out.println("flowo " + hotLeanTEGPump.getOutletStream().getFlowRate("kg/hr"));
-    System.out.println("makeup " + makeupTEG.getFlowRate("kg/hr"));
-    System.out.println("mixo " + coolerhOTteg3.getOutletStream().getFlowRate("kg/hr"));
-    System.out.println("leantoresirc " + leanTEGtoabs.getFlowRate("kg/hr"));
+    /*
+     * System.out.println("flowo " + hotLeanTEGPump.getOutletStream().getFlowRate("kg/hr"));
+     * System.out.println("makeup " + makeupTEG.getFlowRate("kg/hr")); System.out.println("mixo " +
+     * coolerhOTteg3.getOutletStream().getFlowRate("kg/hr")); System.out.println("leantoresirc " +
+     * leanTEGtoabs.getFlowRate("kg/hr")); // operations.run(); System.out.println("flowo " +
+     * hotLeanTEGPump.getOutletStream().getFlowRate("kg/hr")); System.out.println("makeup " +
+     * makeupTEG.getFlowRate("kg/hr")); System.out.println("mixo " +
+     * coolerhOTteg3.getOutletStream().getFlowRate("kg/hr")); System.out.println("leantoresirc " +
+     * leanTEGtoabs.getFlowRate("kg/hr"));
+     */
     assertEquals(1.5322819175995646E-5, dehydratedGas.getFluid().getComponent("water").getx(),
         1e-6);
   }

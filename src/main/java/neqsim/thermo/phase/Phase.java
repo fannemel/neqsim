@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import neqsim.physicalProperties.PhysicalPropertyHandler;
 import neqsim.thermo.ThermodynamicConstantsInterface;
+import neqsim.thermo.ThermodynamicModelSettings;
 import neqsim.thermo.component.ComponentInterface;
 import neqsim.thermo.system.SystemInterface;
 import neqsim.util.exception.InvalidInputException;
@@ -20,7 +21,7 @@ import neqsim.util.exception.InvalidInputException;
  *
  * @author Even Solbraa
  */
-abstract class Phase implements PhaseInterface {
+public abstract class Phase implements PhaseInterface {
   private static final long serialVersionUID = 1000;
   static Logger logger = LogManager.getLogger(Phase.class);
 
@@ -70,7 +71,7 @@ abstract class Phase implements PhaseInterface {
    * </p>
    */
   public Phase() {
-    componentArray = new ComponentInterface[MAX_NUMBER_OF_COMPONENTS];
+    componentArray = new ComponentInterface[ThermodynamicModelSettings.MAX_NUMBER_OF_COMPONENTS];
   }
 
   /** {@inheritDoc} */
@@ -118,7 +119,8 @@ abstract class Phase implements PhaseInterface {
     }
 
     if (this.hasComponent(name)) {
-      // should use addMoles/addMolesChemreac if adding/subtracting moles for component.
+      // should use addMoles/addMolesChemreac if adding/subtracting moles for
+      // component.
       throw new RuntimeException("Component already exists in phase");
     }
 
@@ -582,6 +584,23 @@ abstract class Phase implements PhaseInterface {
 
   /** {@inheritDoc} */
   @Override
+  public double getMolarVolume(String unit) {
+    double conversionFactor = 1.0;
+    switch (unit) {
+      case "m3/mol":
+        conversionFactor = 1.0;
+        break;
+      case "litre/mol":
+        conversionFactor = 1000.0;
+        break;
+      default:
+        throw new RuntimeException("unit not supported " + unit);
+    }
+    return getMolarMass() / getDensity("kg/m3") * conversionFactor;
+  }
+
+  /** {@inheritDoc} */
+  @Override
   public int getNumberOfComponents() {
     return numberOfComponents;
   }
@@ -659,7 +678,7 @@ abstract class Phase implements PhaseInterface {
   /** {@inheritDoc} */
   @Override
   public double calcR() {
-    double R = 8.314 / getMolarMass();
+    double R = ThermodynamicConstantsInterface.R / getMolarMass();
 
     return R;
   }
@@ -1025,6 +1044,7 @@ abstract class Phase implements PhaseInterface {
       case "J":
         conversionFactor = 1.0;
         break;
+      case "kJ/kmol":
       case "J/mol":
         conversionFactor = 1.0 / getNumberOfMolesInPhase();
         break;
@@ -1035,7 +1055,7 @@ abstract class Phase implements PhaseInterface {
         conversionFactor = 1.0 / getNumberOfMolesInPhase() / getMolarMass() / 1000.0;
         break;
       default:
-        break;
+        throw new RuntimeException("unit not supported " + unit);
     }
     return refEnthalpy * conversionFactor;
   }
@@ -1121,7 +1141,7 @@ abstract class Phase implements PhaseInterface {
         conversionFactor = 1.0 / getNumberOfMolesInPhase() / getMolarMass() / 1000.0;
         break;
       default:
-        break;
+        throw new RuntimeException("unit not supported " + unit);
     }
     return refEntropy * conversionFactor;
   }
@@ -1150,6 +1170,7 @@ abstract class Phase implements PhaseInterface {
     double refViscosity = getViscosity(); // viscosity in kg/msec
     double conversionFactor = 1.0;
     switch (unit) {
+      case "Pas":
       case "kg/msec":
         conversionFactor = 1.0;
         break;
@@ -1157,7 +1178,7 @@ abstract class Phase implements PhaseInterface {
         conversionFactor = 1.0e3;
         break;
       default:
-        throw new RuntimeException();
+        throw new RuntimeException("unit not supported " + unit);
     }
     return refViscosity * conversionFactor;
   }
@@ -1181,7 +1202,7 @@ abstract class Phase implements PhaseInterface {
         conversionFactor = 0.01;
         break;
       default:
-        throw new RuntimeException();
+        throw new RuntimeException("unit not supported " + unit);
     }
     return refConductivity * conversionFactor;
   }
@@ -1207,7 +1228,7 @@ abstract class Phase implements PhaseInterface {
         conversionFactor = 0.01;
         break;
       default:
-        throw new RuntimeException();
+        throw new RuntimeException("unit not supported " + unit);
     }
     return refConductivity * conversionFactor;
   }
@@ -1552,7 +1573,7 @@ abstract class Phase implements PhaseInterface {
         conversionFactor = 1.0;
         break;
       default:
-        break;
+        throw new RuntimeException("unit not supported " + unit);
     }
     return JTcoef * conversionFactor;
   }
@@ -1585,8 +1606,7 @@ abstract class Phase implements PhaseInterface {
         conversionFactor = 0.0624279606;
         break;
       default:
-        throw new RuntimeException(
-            "Could not create conversion factor because molar mass is NULL or 0");
+        throw new RuntimeException("unit not supported " + unit);
     }
     return refDensity * conversionFactor;
   }
@@ -2140,16 +2160,20 @@ abstract class Phase implements PhaseInterface {
       return numberOfMolesInPhase * 3600.0;
     } else if (flowunit.equals("Sm3/sec")) {
       return numberOfMolesInPhase * ThermodynamicConstantsInterface.R
-          * ThermodynamicConstantsInterface.standardStateTemperature / 101325.0;
+          * ThermodynamicConstantsInterface.standardStateTemperature
+          / ThermodynamicConstantsInterface.atm;
     } else if (flowunit.equals("Sm3/hr")) {
       return numberOfMolesInPhase * 3600.0 * ThermodynamicConstantsInterface.R
-          * ThermodynamicConstantsInterface.standardStateTemperature / 101325.0;
+          * ThermodynamicConstantsInterface.standardStateTemperature
+          / ThermodynamicConstantsInterface.atm;
     } else if (flowunit.equals("Sm3/day")) {
       return numberOfMolesInPhase * 3600.0 * 24.0 * ThermodynamicConstantsInterface.R
-          * ThermodynamicConstantsInterface.standardStateTemperature / 101325.0;
+          * ThermodynamicConstantsInterface.standardStateTemperature
+          / ThermodynamicConstantsInterface.atm;
     } else if (flowunit.equals("MSm3/day")) {
       return numberOfMolesInPhase * 3600.0 * 24.0 * ThermodynamicConstantsInterface.R
-          * ThermodynamicConstantsInterface.standardStateTemperature / 101325.0 / 1.0e6;
+          * ThermodynamicConstantsInterface.standardStateTemperature
+          / ThermodynamicConstantsInterface.atm / 1.0e6;
     } else {
       throw new RuntimeException("failed.. unit: " + flowunit + " not supported");
     }
@@ -2187,6 +2211,6 @@ abstract class Phase implements PhaseInterface {
   /** {@inheritDoc} */
   @Override
   public double getIsobaricThermalExpansivity() {
-    return 1.0 / getTotalVolume() * getdPdTVn() / getdPdVTn();
+    return getIsothermalCompressibility() * getdPdTVn();
   }
 }
