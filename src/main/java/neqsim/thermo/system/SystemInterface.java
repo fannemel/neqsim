@@ -462,16 +462,6 @@ public interface SystemInterface extends Cloneable, java.io.Serializable {
   public void setForcePhaseTypes(boolean forcePhaseTypes);
 
   /**
-   * Set the flow rate of all components to zero.
-   *
-   * @deprecated use {@link #setEmptyFluid()} instead.
-   */
-  @Deprecated
-  public default void removeMoles() {
-    setEmptyFluid();
-  }
-
-  /**
    * Set the flow rate (moles) of all components to zero.
    */
   public void setEmptyFluid();
@@ -1605,16 +1595,6 @@ public interface SystemInterface extends Cloneable, java.io.Serializable {
    *
    * @return a boolean
    */
-  @Deprecated
-  public boolean doHydrateCheck();
-
-  /**
-   * <p>
-   * Getter for property hydrateCheck.
-   * </p>
-   *
-   * @return a boolean
-   */
   public boolean getHydrateCheck();
 
   /**
@@ -1917,30 +1897,6 @@ public interface SystemInterface extends Cloneable, java.io.Serializable {
    */
   public void chemicalReactionInit();
 
-  // public double getdfugdt(int i, int j);
-
-  /**
-   * Change the phase type of a given phase.
-   *
-   * @param phaseToChange the phase number of the phase to set phase type
-   * @param newPhaseType the phasetype number to set
-   * @deprecated Replaced by {@link setPhaseType}
-   */
-  @Deprecated
-  public default void setPhaseType(int phaseToChange, int newPhaseType) {
-    setPhaseType(phaseToChange, PhaseType.byValue(newPhaseType));
-  }
-
-  /**
-   * Change the phase type of a given phase.
-   *
-   * @param phaseToChange the phase number of the phase to set phase type
-   * @param phaseTypeName the phase type name, see PhaseTypes
-   */
-  public default void setPhaseType(int phaseToChange, String phaseTypeName) {
-    setPhaseType(phaseToChange, PhaseType.byDesc(phaseTypeName));
-  }
-
   /**
    * Change the phase type of a given phase.
    *
@@ -1948,16 +1904,6 @@ public interface SystemInterface extends Cloneable, java.io.Serializable {
    * @param pt PhaseType to set
    */
   public void setPhaseType(int phaseToChange, PhaseType pt);
-
-  /**
-   * Set phase type of all phases.
-   *
-   * @param phases Set to "all" to set all phases, else nothing happens.
-   * @param newPhaseType the phasetype number to set
-   * @deprecated Replaced by {@link setAllPhaseType}
-   */
-  @Deprecated
-  public void setPhaseType(String phases, int newPhaseType);
 
   /**
    * Set phase type of all phases.
@@ -2197,25 +2143,6 @@ public interface SystemInterface extends Cloneable, java.io.Serializable {
    * @return viscosity in specified unit
    */
   public double getViscosity(String unit);
-
-  /**
-   * method to return thermal conductivity.
-   *
-   * @return conductivity in unit W/mK
-   * @deprecated use {@link #getThermalConductivity()} instead.
-   */
-  @Deprecated
-  public double getConductivity();
-
-  /**
-   * method to return thermal conductivity in a specified unit.
-   *
-   * @param unit Supported units are W/mK, W/cmK
-   * @return conductivity in specified unit
-   * @deprecated use {@link #getThermalConductivity(String unit)} instead.
-   */
-  @Deprecated
-  public double getConductivity(String unit);
 
   /**
    * method to return conductivity of a fluid.

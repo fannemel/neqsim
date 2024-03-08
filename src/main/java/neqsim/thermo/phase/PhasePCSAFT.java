@@ -109,15 +109,15 @@ public class PhasePCSAFT extends PhaseSrkEos {
 
   /** {@inheritDoc} */
   @Override
-  public void init(double totalNumberOfMoles, int numberOfComponents, int type, PhaseType phase,
+  public void init(double totalNumberOfMoles, int numberOfComponents, int initType, PhaseType pt,
       double beta) {
-    if (type > 0) {
+    if (initType > 0) {
       for (int i = 0; i < numberOfComponents; i++) {
         componentArray[i].Finit(this, temperature, pressure, totalNumberOfMoles, beta,
-            numberOfComponents, type);
+            numberOfComponents, initType);
       }
     }
-    super.init(totalNumberOfMoles, numberOfComponents, type, phase, beta);
+    super.init(totalNumberOfMoles, numberOfComponents, initType, pt, beta);
   }
 
   /**
@@ -334,7 +334,6 @@ public class PhasePCSAFT extends PhaseSrkEos {
    */
   public double calcF1dispSumTerm() {
     double temp1 = 0.0;
-
     for (int i = 0; i < numberOfComponents; i++) {
       for (int j = 0; j < numberOfComponents; j++) {
         temp1 +=
@@ -358,7 +357,6 @@ public class PhasePCSAFT extends PhaseSrkEos {
    */
   public double calcF2dispSumTerm() {
     double temp1 = 0.0;
-
     for (int i = 0; i < numberOfComponents; i++) {
       for (int j = 0; j < numberOfComponents; j++) {
         temp1 += getComponent(i).getNumberOfMolesInPhase()
@@ -1155,11 +1153,12 @@ public class PhasePCSAFT extends PhaseSrkEos {
 
   /** {@inheritDoc} */
   @Override
-  public double molarVolume(double pressure, double temperature, double A, double B, int phase)
+  public double molarVolume(double pressure, double temperature, double A, double B, PhaseType pt)
       throws neqsim.util.exception.IsNaNException,
       neqsim.util.exception.TooManyIterationsException {
-    double BonV = phase == 0 ? 2.0 / (2.0 + temperature / getPseudoCriticalTemperature())
-        : pressure * getB() / (numberOfMolesInPhase * temperature * R);
+    double BonV =
+        pt == PhaseType.LIQUID ? 2.0 / (2.0 + temperature / getPseudoCriticalTemperature())
+            : pressure * getB() / (numberOfMolesInPhase * temperature * R);
     // double BonV = phase== 0 ? 0.99:1e-5;
     if (BonV < 0) {
       BonV = 1.0e-6;
@@ -1216,8 +1215,8 @@ public class PhasePCSAFT extends PhaseSrkEos {
       throw new neqsim.util.exception.IsNaNException(this, "molarVolume", "Molar volume");
     }
 
-    // if(phaseType==0) System.out.println("density " + getDensity()); //"BonV: " +
-    // BonV + " "+" itert: " + iterations +" " + " phase " + phaseType+ " " + h + "
+    // if(pt==0) System.out.println("density " + getDensity()); //"BonV: " +
+    // BonV + " "+" itert: " + iterations +" " + " phase " + pt+ " " + h + "
     // " +dh + " B " + Btemp + " D " + Dtemp + " gv" + gV() + " fv " + fv() + " fvv"
     // + fVV());
 

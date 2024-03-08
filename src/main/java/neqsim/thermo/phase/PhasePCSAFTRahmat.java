@@ -15,12 +15,11 @@ import neqsim.thermo.component.ComponentPCSAFT;
  */
 public class PhasePCSAFTRahmat extends PhasePCSAFT {
   private static final long serialVersionUID = 1000;
+  static Logger logger = LogManager.getLogger(PhasePCSAFTRahmat.class);
 
   double nSAFT = 1.0;
   double dnSAFTdV = 1.0;
-
   double dnSAFTdVdV = 1.0;
-
   double dnSAFTdVdVdV = 1.0;
 
   double dmeanSAFT = 0.0;
@@ -34,33 +33,22 @@ public class PhasePCSAFTRahmat extends PhasePCSAFT {
   double volumeSAFT = 1.0;
   double daHCSAFTdN = 1.0;
   double daHSSAFTdN = 1.0;
-
   double dgHSSAFTdN = 1.0;
-
   double daHSSAFTdNdN = 1.0;
-
   double dgHSSAFTdNdN = 1.0;
-
   double daHSSAFTdNdNdN = 1.0;
-
   double dgHSSAFTdNdNdN = 1.0;
 
   // by Rahmat
   double dNSAFTdT = 1.0;
   double dF1dispVolTermdT = 0.0;
   double dF1dispI1dT = 1.0;
-
   double dF2dispI2dT = 1.0;
-
   double dF2dispZHCdT = 1.0;
   double dF1dispSumTermdT = 1.0;
-
   double dF2dispSumTermdT = 1.0;
-
   int useHS = 1;
-
   int useDISP1 = 1;
-
   int useDISP2 = 1;
 
   private double[][] aConstSAFT = {
@@ -78,65 +66,35 @@ public class PhasePCSAFTRahmat extends PhasePCSAFT {
       {0.0976883116, -0.2557574982, -9.1558561530, 20.642075974, -38.804430052, 93.626774077,
           -29.666905585}};
   private double F1dispVolTerm = 1.0;
-
   private double F1dispSumTerm = 1.0;
-
   private double F1dispI1 = 1.0;
-
   private double F2dispI2 = 1.0;
-
   private double F2dispZHC = 1.0;
-
   private double F2dispZHCdN = 1.0;
-
   private double F2dispZHCdm = 1.0;
-
   private double F2dispZHCdV = 1.0;
-
   private double F2dispI2dVdV;
-
   private double F2dispI2dVdVdV = 0.0;
-
   private double F2dispZHCdVdV = 1.0;
-
   private double F2dispZHCdVdVdV = 1.0;
-
   private double F1dispI1dNdN = 1.0;
-
   private double F1dispI1dNdNdN = 1.0;
-
   private double F1dispVolTermdV = 1.0;
-
   private double F1dispVolTermdVdV = 1.0;
-
   private double F1dispI1dN = 1.0;
-
   private double F1dispI1dm = 1.0;
-
   private double F1dispI1dV = 1.0;
-
   private double F2dispI2dV = 1.0;
-
   private double F2dispI2dN = 1.0;
-
   private double F2dispI2dm = 1.0;
-
   private double F2dispSumTerm = 0.0;
-
   private double F2dispZHCdNdN = 1.0;
-
   private double F2dispZHCdNdNdN = 1.0;
-
   private double F2dispI2dNdN = 1.0;
-
   private double F2dispI2dNdNdN = 1.0;
-
   private double F1dispI1dVdV = 1.0;
-
   private double F1dispI1dVdVdV = 1.0;
-
   private double F1dispVolTermdVdVdV = 1.0;
-  static Logger logger = LogManager.getLogger(PhasePCSAFTRahmat.class);
 
   /**
    * <p>
@@ -169,13 +127,16 @@ public class PhasePCSAFTRahmat extends PhasePCSAFT {
 
   /** {@inheritDoc} */
   @Override
-  public void init(double totalNumberOfMoles, int numberOfComponents, int type, PhaseType phase,
+  public void init(double totalNumberOfMoles, int numberOfComponents, int initType, PhaseType pt,
       double beta) {
+    // missing?
+    // if (initType > 0) {
     for (int i = 0; i < numberOfComponents; i++) {
       componentArray[i].Finit(this, temperature, pressure, totalNumberOfMoles, beta,
-          numberOfComponents, type);
+          numberOfComponents, initType);
     }
-    super.init(totalNumberOfMoles, numberOfComponents, type, phase, beta);
+    // }
+    super.init(totalNumberOfMoles, numberOfComponents, initType, pt, beta);
   }
 
   /** {@inheritDoc} */
@@ -1385,11 +1346,12 @@ public class PhasePCSAFTRahmat extends PhasePCSAFT {
 
   /** {@inheritDoc} */
   @Override
-  public double molarVolume(double pressure, double temperature, double A, double B, int phase)
+  public double molarVolume(double pressure, double temperature, double A, double B, PhaseType pt)
       throws neqsim.util.exception.IsNaNException,
       neqsim.util.exception.TooManyIterationsException {
-    double BonV = phase == 0 ? 2.0 / (2.0 + temperature / getPseudoCriticalTemperature())
-        : pressure * getB() / (numberOfMolesInPhase * temperature * R);
+    double BonV =
+        pt == PhaseType.LIQUID ? 2.0 / (2.0 + temperature / getPseudoCriticalTemperature())
+            : pressure * getB() / (numberOfMolesInPhase * temperature * R);
     // double BonV = phase== 0 ? 0.99:1e-5;
 
     if (BonV < 0) {
@@ -1469,9 +1431,9 @@ public class PhasePCSAFTRahmat extends PhasePCSAFT {
      * } if(iterations>=6000) throw new util.exception.TooManyIterationsException();
      * if(Double.isNaN(getMolarVolume())) throw new util.exception.IsNaNException();
      * 
-     * // if(phaseType==0) System.out.println("density " + getDensity()); //"BonV: " + BonV +
-     * " "+"  itert: " + iterations +" " + "  phase " + phaseType+ "  " + h + " " +dh + " B " +
-     * Btemp + "  D " + Dtemp + " gv" + gV() + " fv " + fv() + " fvv" + fVV());
+     * // if(pt==0) System.out.println("density " + getDensity()); //"BonV: " + BonV +
+     * " "+"  itert: " + iterations +" " + "  phase " + pt+ "  " + h + " " +dh + " B " + Btemp +
+     * "  D " + Dtemp + " gv" + gV() + " fv " + fv() + " fvv" + fVV());
      */
     return getMolarVolume();
   }
